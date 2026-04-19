@@ -34,7 +34,7 @@ services:
     container_name: nginx_lb
     restart: always
     ports:
-      - "8080:80"   # ← Port changé de 80 à 8080
+      - "8888:80"   # ← Port changé de 80 à 8080
     volumes:
       - ./nginx/:/etc/nginx/conf.d/:ro
     depends_on:

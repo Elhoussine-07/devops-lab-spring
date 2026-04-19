@@ -27,60 +27,39 @@ pipeline {
            steps {
                echo '🔗 Test d\'intégration avec Docker Compose...'
                dir('demo') {
-                   // DEBUG : Vérifier la structure des fichiers
-                   sh 'pwd'
-                   sh 'ls -la'
-                   sh 'ls -la nginx/ || echo "❌ dossier nginx manquant"'
-                   sh 'cat nginx/nginx.conf || echo "❌ fichier nginx.conf manquant"'
-
-                   // Copier les fichiers .example en .env
                    sh 'cp .env.mysql.example .env.mysql'
                    sh 'cp .env.api.example .env.api'
-
-                   // Lancer Docker Compose avec 3 instances
                    sh 'docker-compose up -d --build --scale api=3'
                    sh 'sleep 15'
-
-                   // Tester le load balancing (6 requêtes)
                    sh '''
                        echo "=== Test Load Balancing ==="
                        for i in 1 2 3 4 5 6; do
-                           curl -s http://localhost/hello
+                           curl -s http://localhost:8888/hello
                            echo ""
                        done
                    '''
-
-                   // Nettoyer
                    sh 'docker-compose down'
                }
            }
        }
 
-        stage('Deploy') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo '🚀 Déploiement final...'
-                dir('demo') {
-                    // Copier les fichiers .example en .env
-                    sh 'cp .env.mysql.example .env.mysql'
-                    sh 'cp .env.api.example .env.api'
-
-                    // Arrêter les anciens conteneurs
-                    sh 'docker-compose down || true'
-
-                    // Lancer le déploiement avec 3 instances
-                    sh 'docker-compose up -d --scale api=3'
-                    sh 'sleep 5'
-
-                    // Vérifier que l'application répond
-                    sh 'curl -s http://localhost/hello'
-                }
-                echo '✅ Application déployée sur http://localhost'
-            }
-        }
-    }
+       stage('Deploy') {
+           when {
+               branch 'main'
+           }
+           steps {
+               echo '🚀 Déploiement final...'
+               dir('demo') {
+                   sh 'cp .env.mysql.example .env.mysql'
+                   sh 'cp .env.api.example .env.api'
+                   sh 'docker-compose down || true'
+                   sh 'docker-compose up -d --scale api=3'
+                   sh 'sleep 5'
+                   sh 'curl -s http://localhost:8888/hello'
+               }
+               echo '✅ Application déployée sur http://localhost:8888'
+           }
+       }
 
     post {
         always {
