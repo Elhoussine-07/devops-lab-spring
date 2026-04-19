@@ -30,6 +30,22 @@ pipeline {
                     sh 'cp .env.api.example .env.api'
                     sh 'docker-compose up -d --build --scale api=3'
                     sh 'sleep 30'
+
+                    // Debug: Vérifier que les APIs répondent directement
+                    sh '''
+                        echo "=== Vérification directe des APIs ==="
+                        for i in 1 2 3; do
+                            docker exec demo-api-$i curl -s http://localhost:8081/hello
+                            echo ""
+                        done
+                    '''
+
+                    // Debug: Vérifier que Nginx peut joindre les APIs
+                    sh '''
+                        echo "=== Vérification via Nginx (réseau Docker) ==="
+                        docker exec nginx_lb curl -s http://api:8081/hello
+                    '''
+
                     sh '''
                         echo "=== Test Load Balancing ==="
                         for i in 1 2 3 4 5 6; do
@@ -37,6 +53,7 @@ pipeline {
                             echo ""
                         done
                     '''
+
                     sh 'docker-compose down'
                 }
             }
@@ -53,7 +70,7 @@ pipeline {
                     sh 'cp .env.api.example .env.api'
                     sh 'docker-compose down || true'
                     sh 'docker-compose up -d --scale api=3'
-                    sh 'sleep 5'
+                    sh 'sleep 10'
                     sh 'curl -s http://localhost:8888/hello'
                 }
                 echo '✅ Application déployée sur http://localhost:8888'
