@@ -30,8 +30,6 @@ pipeline {
                     sh 'cp .env.api.example .env.api'
                     sh 'docker-compose up -d --build --scale api=3'
                     sh 'sleep 15'
-
-                    // Test depuis l'intérieur du conteneur Nginx
                     sh '''
                         echo "=== Test Load Balancing (depuis le réseau Docker) ==="
                         for i in 1 2 3 4 5 6; do
@@ -39,7 +37,6 @@ pipeline {
                             echo ""
                         done
                     '''
-
                     sh 'docker-compose down'
                 }
             }
@@ -62,6 +59,7 @@ pipeline {
                 echo '✅ Déploiement terminé'
             }
         }
+    }
 
     post {
         always {
