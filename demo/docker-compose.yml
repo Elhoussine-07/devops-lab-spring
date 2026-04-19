@@ -30,18 +30,16 @@ services:
       - app-network
 
   nginx:
-    image: nginx:alpine
+    build: ./nginx           # <--- On build notre propre image Nginx
     container_name: nginx_lb
     restart: always
     ports:
       - "8888:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # SUPPRIMEZ la section volumes ici car la config est maintenant DANS l'image
     depends_on:
       - api
     networks:
       - app-network
-
 volumes:
   mysql_data:
 
