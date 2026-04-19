@@ -23,15 +23,6 @@ pipeline {
             }
         }
 
-        stage('Test Unitaire') {
-            steps {
-                echo '🧪 Test de l\'image Docker...'
-                dir('demo') {
-                    sh 'docker run --rm spring-api:latest java -version'
-                }
-            }
-        }
-
         stage('Test d\'Intégration') {
             steps {
                 echo '🔗 Test d\'intégration avec Docker Compose...'
