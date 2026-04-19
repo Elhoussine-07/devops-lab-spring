@@ -1,7 +1,3 @@
-cd ~/Desktop/CI2/s2/DEVOPS/TPs/DockerCompose
-
-# Remplacer le Jenkinsfile
-cat > Jenkinsfile << 'EOF'
 pipeline {
     agent any
 
@@ -33,23 +29,7 @@ pipeline {
                     sh 'cp .env.mysql.example .env.mysql'
                     sh 'cp .env.api.example .env.api'
                     sh 'docker-compose up -d --build --scale api=3'
-                    
-                    sh '''
-                        echo "⏳ Attente du démarrage des services..."
-                        sleep 30
-                        
-                        echo "🔄 Vérification que les APIs répondent..."
-                        for i in 1 2 3 4 5 6; do
-                            if curl -s http://localhost:8888/hello > /dev/null; then
-                                echo "✅ API prête (tentative \$i)"
-                                break
-                            else
-                                echo "⏳ API pas encore prête (tentative \$i/6)..."
-                                sleep 5
-                            fi
-                        done
-                    '''
-                    
+                    sh 'sleep 30'
                     sh '''
                         echo "=== Test Load Balancing ==="
                         for i in 1 2 3 4 5 6; do
@@ -57,7 +37,6 @@ pipeline {
                             echo ""
                         done
                     '''
-                    
                     sh 'docker-compose down'
                 }
             }
@@ -74,23 +53,8 @@ pipeline {
                     sh 'cp .env.api.example .env.api'
                     sh 'docker-compose down || true'
                     sh 'docker-compose up -d --scale api=3'
-                    
-                    sh '''
-                        echo "⏳ Attente du déploiement..."
-                        sleep 30
-                        
-                        echo "🔄 Vérification finale..."
-                        for i in 1 2 3 4 5; do
-                            if curl -s http://localhost:8888/hello > /dev/null; then
-                                echo "✅ Application déployée avec succès!"
-                                curl -s http://localhost:8888/hello
-                                break
-                            else
-                                echo "⏳ En attente (tentative \$i/5)..."
-                                sleep 5
-                            fi
-                        done
-                    '''
+                    sh 'sleep 5'
+                    sh 'curl -s http://localhost:8888/hello'
                 }
                 echo '✅ Application déployée sur http://localhost:8888'
             }
@@ -112,4 +76,3 @@ pipeline {
         }
     }
 }
-
