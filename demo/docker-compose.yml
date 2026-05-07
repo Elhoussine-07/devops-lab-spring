@@ -30,12 +30,12 @@ services:
       - app-network
 
   nginx:
-    build: ./nginx           # <--- On build notre propre image Nginx
+    build: ./nginx
     container_name: nginx_lb
     restart: always
     ports:
       - "8888:80"
-    # SUPPRIMEZ la section volumes ici car la config est maintenant DANS l'image
+
     depends_on:
       - api
     networks:
